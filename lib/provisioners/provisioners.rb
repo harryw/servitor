@@ -1,0 +1,7 @@
+servitor_require 'vagrant_box'
+servitor_require 'veewee_box'
+servitor_require 'vagrant_box_provisioner'
+servitor_require 'vagrant_basebox_provisioner'
+servitor_require 'vagrant_box_chef_provisioner'
+servitor_require 'vagrant_box_ruby_provisioner'
+servitor_require 'vagrant_box_service_provisioner'

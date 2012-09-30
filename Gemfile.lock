@@ -97,4 +97,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  rspec
   veewee (= 0.3.0.beta2)
