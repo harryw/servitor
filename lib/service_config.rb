@@ -4,7 +4,7 @@ require 'service_config/infrastructure_requirements'
 class ServiceConfig
 
   # these are part of the service configuration file
-  attr_accessor :name, :command, :depends_on
+  attr_accessor :name, :depends_on, :app_description, :infrastructure_requirements
 
   # these are derived at load time
   attr_reader :location
