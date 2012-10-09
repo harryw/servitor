@@ -10,7 +10,8 @@ module Servitor
     # Builds a vagrant box of the configured name, to satisfy the configured requirements.
     # Returns a vagrant box.
     def provision
-      return box if box = VagrantBox.find(name)
+      box = VagrantBox.find(name)
+      return box if box
       @base_provisioner.provision.copy_to(name) do |box|
         setup(box)
       end

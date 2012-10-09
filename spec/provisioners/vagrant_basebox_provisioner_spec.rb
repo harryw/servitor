@@ -1,44 +1,52 @@
 require 'spec_helper'
 
-describe VagrantBaseboxProvisioner do
+describe Servitor::VagrantBaseboxProvisioner do
 
-  before :each do
-    @requirements = InfrastructureRequirements.new
+  before :all do
+    @requirements = Servitor::InfrastructureRequirements.new
     @requirements.os_name 'ubuntu'
     @requirements.os_version '10.04'
     @requirements.os_arch '64'
-    @provisioner = VagrantBaseboxProvisioner.new(@requirements)
+    @provisioner = Servitor::VagrantBaseboxProvisioner.new(@requirements)
   end
 
   describe '#name' do
-    @provisioner.name.should == "#{@requirements.os_name}_#{@requirements.os_version}"
+    it 'contains the os name and version' do
+      @provisioner.name.should == "#{@requirements.os_name}-#{@requirements.os_version}".gsub(/[^a-zA-Z0-9\-]/, '-')
+    end
   end
 
   describe '#provision' do
 
     before :all do
-      @box = @provisioner.provision
+      @pwd = Dir.pwd
+      @basebox = @provisioner.provision
+      @box = Servitor::VagrantBox.new('VagrantBaseBoxProvisionerTest')
+      @tmpdir = File.join(@pwd, '.servitortest', 'VagrantBaseBoxProvisionerTest')
+      FileUtils.mkdir_p @tmpdir
+      FileUtils.cd @tmpdir
+      @box.init(@basebox.name)
+      @box.up
     end
 
-    it 'returns a VagrantBox' do
-      @box.should be_a(VagrantBox)
+    after :all do
+      @box.destroy
+      FileUtils.cd @pwd
+      FileUtils.rm_rf @tmpdir
     end
 
-    describe 'the vagrant box' do
-
-      it 'has the requested OS' do
-        @box.ssh('uname -s').should =~ Regex.new(@requirements.os_name)
-      end
-
-      it 'has the requested OS version' do
-        @box.ssh('uname -r').should =~ Regex.new(@requirements.os_version)
-      end
-
-      it 'has the requested OS architecture' do
-        @box.ssh('uname -m').should =~ Regex.new(@requirements.os_arch)
-      end
-
+    it 'has the requested OS' do
+      @box.ssh('uname -s').should =~ Regexp.new(@requirements.os_name)
     end
+
+    it 'has the requested OS version' do
+      @box.ssh('uname -r').should =~ Regexp.new(@requirements.os_version)
+    end
+
+    it 'has the requested OS architecture' do
+      @box.ssh('uname -m').should =~ Regexp.new(@requirements.os_arch)
+    end
+
   end
 
 end

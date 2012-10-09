@@ -97,5 +97,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  childprocess
   rspec
   veewee (= 0.3.0.beta2)

@@ -10,8 +10,8 @@ module Servitor
       end
     end
 
-    alias :build :configure
-    alias :release :execute
+    alias :configure :build
+    alias :execute :release
 
   end
 

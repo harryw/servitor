@@ -1,16 +1,11 @@
 module ServitorRequire
-  if Kernel.respond_to?(:require_relative)
-    def servitor_require(path)
-      require_relative(path)
-    end
-  else
-    def servitor_require(path)
-      require(File.join(File.dirname(caller[1]), path))
-    end
+  # for 1.8 compatibility
+  def servitor_require(path)
+    require(File.join(File.dirname(caller[0]), path))
   end
 end
 
-Kernel.extend(ServitorRequire)
+extend(ServitorRequire)
 
 servitor_require 'cli/cli'
 servitor_require 'infrastructure/infrastructure'

@@ -1,5 +1,3 @@
-require 'service_config'
-
 module Servitor
 
   class ServiceFileParser

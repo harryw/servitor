@@ -9,11 +9,12 @@ module Servitor
     end
 
     def name
-      "#{@requirements.os_name}_#{@requirements.os_version}"
+      "#{@requirements.os_name}_#{@requirements.os_version}".gsub(/[^a-zA-Z0-9\-]/, '-')
     end
 
     def provision
-      return box if box = VagrantBox.find(name)
+      box = VagrantBox.find(name)
+      return box if box
       create_base_box
       VagrantBox.new(name)
     end
@@ -23,11 +24,12 @@ module Servitor
     def create_base_box
       base_box = VeeweeBox.new(name, @requirements.os_name, @requirements.os_version)
       base_box.define
-      base_box.build
+      base_box.build(:nogui => true)
       base_box.validate
-      base_box.halt
+      #base_box.halt
       base_box.export
       base_box.destroy
+      VagrantBox.add(name, "#{name}.box")
     end
   end
 
