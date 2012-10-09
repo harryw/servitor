@@ -4,7 +4,11 @@ module Servitor
     def execute_child_process(*args)
       puts "Executing: #{args.inspect}"
       process = ChildProcess.build(*args)
-      yield process if block_given?
+      if block_given?
+        yield process
+      else
+        process.io.inherit!
+      end
       process.start
       exit_code = process.wait
       raise ServitorChildProcessError, "#{args.inspect}: exited with code #{exit_code}" unless exit_code == 0

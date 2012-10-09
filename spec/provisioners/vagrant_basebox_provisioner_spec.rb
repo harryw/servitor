@@ -18,11 +18,15 @@ describe Servitor::VagrantBaseboxProvisioner do
 
   describe '#provision' do
 
+    # The result of a #provision call is that there is a base box available satisfying the specified requirements.
+    # The return value is a box name to use as a base for another Vagrant box.
+    # So, to test #provision we need to build a new box from that base and inspect it.
+
     before :all do
       @pwd = Dir.pwd
       @basebox = @provisioner.provision
       @box = Servitor::VagrantBox.new('VagrantBaseBoxProvisionerTest')
-      @tmpdir = File.join(@pwd, '.servitortest', 'VagrantBaseBoxProvisionerTest')
+      @tmpdir = File.join(@pwd, 'VagrantBaseBoxProvisionerTest')
       FileUtils.mkdir_p @tmpdir
       FileUtils.cd @tmpdir
       @box.init(@basebox.name)

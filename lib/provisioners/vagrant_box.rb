@@ -40,8 +40,11 @@ module Servitor
       execute_child_process('vagrant', 'destroy', '--force')
     end
 
-    def package
-      execute_child_process('vagrant', 'package', @name)
+    def package_and_add
+      box_file = "#{@name}.box"
+      execute_child_process('vagrant', 'package', '--output', box_file)
+      self.class.add(@name, box_file)
+      FileUtils.rm box_file
     end
 
     def ssh(command, options={})
@@ -64,7 +67,7 @@ module Servitor
           new_box.init(@name)
           new_box.up
           yield new_box
-          new_box.package
+          new_box.package_and_add
           new_box.destroy
           return new_box
         end

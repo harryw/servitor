@@ -29,7 +29,9 @@ module Servitor
       #base_box.halt
       base_box.export
       base_box.destroy
-      VagrantBox.add(name, "#{name}.box")
+      box_file = "#{name}.box"
+      VagrantBox.add(name, box_file)
+      FileUtils.rm box_file
     end
   end
 
