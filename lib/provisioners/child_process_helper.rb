@@ -4,10 +4,22 @@ module Servitor
     def execute_child_process(*args)
       puts "Executing: #{args.inspect}"
       process = ChildProcess.build(*args)
-      process.io.inherit!
+      yield process if block_given?
       process.start
       exit_code = process.wait
       raise ServitorChildProcessError, "#{args.inspect}: exited with code #{exit_code}" unless exit_code == 0
+    end
+
+    def execute_child_process_and_capture_output(*args)
+      output = nil
+      Tempfile.open('ChildProcessHelper') do |tempfile|
+        execute_child_process(*args) do |process|
+          process.io.stdout = process.io.stderr = tempfile
+        end
+        tempfile.rewind
+        output = tempfile.read
+      end
+      output
     end
 
     def self.included(base)

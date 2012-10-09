@@ -37,15 +37,20 @@ module Servitor
     end
 
     def destroy
-      execute_child_process('vagrant', 'destroy')
+      execute_child_process('vagrant', 'destroy', '--force')
     end
 
     def package
       execute_child_process('vagrant', 'package', @name)
     end
 
-    def ssh(command)
-      execute_child_process('vagrant', 'ssh', '-c', command)
+    def ssh(command, options={})
+      args = ['vagrant', 'ssh', '-c', command]
+      if options[:capture]
+        execute_child_process_and_capture_output(*args)
+      else
+        execute_child_process(*args)
+      end
     end
 
     def provision

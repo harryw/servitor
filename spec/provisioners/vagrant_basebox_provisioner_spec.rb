@@ -36,15 +36,23 @@ describe Servitor::VagrantBaseboxProvisioner do
     end
 
     it 'has the requested OS' do
-      @box.ssh('uname -s').should =~ Regexp.new(@requirements.os_name)
+      @box.ssh('lsb_release -si', :capture => true).should =~ Regexp.new(@requirements.os_name, true)
     end
 
     it 'has the requested OS version' do
-      @box.ssh('uname -r').should =~ Regexp.new(@requirements.os_version)
+      @box.ssh('lsb_release -sr', :capture => true).should =~ Regexp.new(@requirements.os_version, true)
     end
 
     it 'has the requested OS architecture' do
-      @box.ssh('uname -m').should =~ Regexp.new(@requirements.os_arch)
+      arch = case @requirements.os_arch
+      when /64/
+        '64'
+      when /32/, /86/
+        '32'
+      else
+        raise "unrecognized architecture: #{@requirements.os_arch}"
+      end
+      @box.ssh("uname -m | sed 's/x86_//;s/i[3-6]86/32/'", :capture => true).should =~ Regexp.new(arch)
     end
 
   end
