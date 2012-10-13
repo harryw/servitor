@@ -13,10 +13,7 @@ module Servitor
     end
 
     def provision
-      box = VagrantBox.find(name)
-      return box if box
-      create_base_box
-      VagrantBox.new(name)
+      create_base_box unless VagrantBox.find(name)
     end
 
     private
