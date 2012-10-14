@@ -26,5 +26,9 @@ module Servitor
     File.join(Servitor.root, '.servitor', 'boxes')
   end
 
+  def self.vagrantfile
+    File.join(Servitor.root, '.servitor', 'Vagrantfile')
+  end
+
   class ServitorRootException < StandardError; end
 end
