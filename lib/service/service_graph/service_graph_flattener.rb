@@ -12,16 +12,17 @@ module Servitor
         remaining_nodes = graph.service_nodes.values
         while remaining_nodes.any?
           found = false
-          remaining_nodes.each do |node|
+          remaining_nodes.dup.each do |node|
             if node.depends_on_nodes.none? { |depends_on_node| remaining_nodes.include?(depends_on_node) }
               found = true
               nodes << node
-              remaining_nodes.remove(node)
+              remaining_nodes.delete(node)
               break
             end
           end
-          raise CyclicDependencyError
+          raise CyclicDependencyError unless found
         end
+        nodes
       end
 
     end

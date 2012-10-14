@@ -17,12 +17,12 @@ module Servitor
       @infrastructure_requirements = InfrastructureRequirements.new
     end
 
-    def describe_app
-      yield @app_description
+    def describe_app(&block)
+      @app_description.instance_exec(&block)
     end
 
-    def require_infrastructure
-      yield @infrastructure_requirements
+    def require_infrastructure(&block)
+      @infrastructure_requirements.instance_exec(&block)
     end
 
   end

@@ -1,30 +1,36 @@
 module Servitor
 
   class VagrantBoxProvisioner
-    attr_reader :requirements, :base_provisioner
+    attr_reader :requirements
 
-    def initialize(base_provisioner = nil)
-      @base_provisioner = base_provisioner
+    def initialize(requirements)
+      @requirements = requirements
     end
 
-    # Builds a vagrant box of the configured name, to satisfy the configured requirements.
-    # Returns a vagrant box.
+    def name
+      @name ||= "#{@requirements.os_name}_#{@requirements.os_version}".gsub(/[^a-zA-Z0-9\-]/, '-')
+    end
+
     def provision
-      box = VagrantBox.find(name)
-      return box if box
-      @base_provisioner.provision.copy_to(name) do |box|
-        setup(box)
+      create_base_box unless VagrantBox.exists?(name)
+      VagrantBox.new(name).tap do |box|
+        box.init(name)
+        box.up
       end
     end
 
-    # Performs provisioner-specific setup steps.  Implemented in each derived provisioner.
-    def setup(box)
-      raise NotImplementedError, "VagrantBoxProvisioner#setup should be overridden in derived provisioners"
-    end
+    private
 
-    # Returns the name this vagrant box should have once provisioned & defined.  Implemented in each derived provisioner.
-    def name
-      raise NotImplementedError, "VagrantBoxProvisioner#name should be overridden in derived provisioners"
+    def create_base_box
+      base_box = VeeweeBox.new(name, @requirements.os_name, @requirements.os_version)
+      base_box.define
+      base_box.build(:nogui => true)
+      base_box.validate
+      base_box.export
+      base_box.up
+      box_file = "#{name}.box"
+      VagrantBox.add(name, box_file)
+      FileUtils.rm box_file
     end
   end
 

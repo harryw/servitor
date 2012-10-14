@@ -6,8 +6,10 @@ module Servitor
 
       # Provisions an infrastructure that meets the requirements for the given service config.
       # Returns an infrastructure.
-      def provision(service_config)
-        VagrantBoxProvisioner.new(service_config.name, service_config.infrastructure_requirements).provision
+      def provision(requirements)
+        VagrantBox.define(requirements) do |box|
+          VagrantBoxRubyInstaller.new(requirements).install(box)
+        end
       end
 
       private

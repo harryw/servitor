@@ -8,9 +8,8 @@ module Servitor
     include ChildProcessHelper
 
     class << self
-      def find(name)
-        box = self.vagrant.boxes.find(name)
-        VagrantBox.new(name) if box
+      def exists?(name)
+        !!self.vagrant.boxes.find(name)
       end
 
       def vagrant
@@ -20,58 +19,82 @@ module Servitor
       def add(box_name, box_file)
         execute_child_process('vagrant', 'box', 'add', box_name, box_file)
       end
+
+      def define(requirements)
+        name = box_name_for(requirements)
+        return name if exists?(name)
+        box = VagrantBoxProvisioner.new(requirements).provision
+        yield box
+        box_file = box.package
+        box.destroy
+        self.add(name, box_file)
+        name
+      end
+
+      def box_file_for(name)
+        File.join(Servitor.boxes_root, "#{name}.box")
+      end
+
+      def box_name_for(requirements)
+        "servitor-#{requirements.consistent_hash.to_s(32)}"
+      end
     end
 
-    attr_reader :name
+    attr_reader :name, :path
 
     def initialize(name)
       @name = name
+      @path = File.join(Servitor.boxes_root, @name)
     end
 
-    def init(base_name)
-      execute_child_process('vagrant', 'init', base_name)
+    def init(base_box)
+      box_dir do
+        execute_child_process('vagrant', 'init', base_box)
+      end
     end
 
     def up
-      execute_child_process('vagrant', 'up', '--no-provision')
+      box_dir do
+        execute_child_process('vagrant', 'up', '--no-provision')
+      end
     end
 
     def destroy
-      execute_child_process('vagrant', 'destroy', '--force')
+      box_dir do
+        execute_child_process('vagrant', 'destroy', '--force')
+      end
     end
 
-    def package_and_add
-      box_file = "#{@name}.box"
-      execute_child_process('vagrant', 'package', '--output', box_file)
-      self.class.add(@name, box_file)
-      FileUtils.rm box_file
+    def package
+      box_dir do
+        box_file = self.class.box_file_for(@name)
+        execute_child_process('vagrant', 'package', '--output', box_file)
+        return box_file
+      end
     end
 
     def ssh(command, options={})
-      args = ['vagrant', 'ssh', '-c', command]
-      if options[:capture]
-        execute_child_process_and_capture_output(*args)
-      else
-        execute_child_process(*args)
+      box_dir do
+        args = ['vagrant', 'ssh', '-c', command, options]
+        if options[:capture]
+          execute_child_process_and_capture_output(*args)
+        else
+          execute_child_process(*args)
+        end
       end
     end
 
     def provision
-      execute_child_process('vagrant', 'provision')
+      box_dir do
+        execute_child_process('vagrant', 'provision')
+      end
     end
 
-    def copy_to(new_name)
-      Dir.mktmpdir do |dir|
-        Dir.chdir(dir) do
-          new_box = VagrantBox.new(new_name)
-          new_box.init(@name)
-          new_box.up
-          yield new_box
-          new_box.package_and_add
-          new_box.destroy
-          return new_box
-        end
-      end
+    private
+
+    def box_dir(&block)
+      FileUtils.mkdir_p(self.path)
+      FileUtils.chdir(self.path, {}, &block)
     end
 
   end

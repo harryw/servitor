@@ -2,7 +2,7 @@ module Servitor
 
   class ServiceLocator
 
-    FILENAMES = %w(Servicefile, .servicefile)
+    FILENAMES = %w(Servicefile .servicefile)
     DEFAULT_SERVICES_DIR = '~/git'
 
     class << self

@@ -98,5 +98,6 @@ PLATFORMS
 
 DEPENDENCIES
   childprocess
+  erubis
   rspec
   veewee (= 0.3.0.beta2)

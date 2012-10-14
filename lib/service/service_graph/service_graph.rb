@@ -14,13 +14,13 @@ module Servitor
     # Takes a service config and builds a graph of service configs,
     # returning the root node for that graph
     def self.build(root_service_config)
-      new.tap { |g| g.build(root_service_config) }
+      new.tap { |g| g.send(:build, root_service_config) }
     end
 
     private
 
     def build(root_service_config)
-      @root = build_node(root_service_config)
+      @root = find_or_build_node(root_service_config)
     end
 
     def find_or_build_node(service_config)

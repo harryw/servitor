@@ -33,12 +33,10 @@ module Servitor
     end
 
     def define
-      puts "calling define (#{@name.inspect}, #{template_name.inspect}) [#{Dir.pwd}]"
       execute_child_process('vagrant', 'basebox', 'define', @name, template_name)
     end
 
     def build(options={})
-      puts "calling build (#{@name.inspect}, '--auto') (options=#{options.inspect}) [#{Dir.pwd}]"
       build_args = ['vagrant', 'basebox', 'build', @name, '--auto']
       build_args << '--nogui' if options[:nogui]
       execute_child_process(*build_args)
@@ -47,8 +45,6 @@ module Servitor
     %w(up destroy).each do |method_name|
       define_method(method_name) do
         begin
-          puts "calling #{method_name.inspect} [#{Dir.pwd}]"
-          #self.class.vagrant.cli('basebox', method_name)
           execute_child_process('vagrant', 'basebox', method_name, @name)
         rescue StandardError => e
           raise e, "#{method_name}: #{e.message}", e.backtrace
@@ -59,8 +55,6 @@ module Servitor
     %w(undefine validate export halt).each do |method_name|
       define_method(method_name) do
         begin
-          puts "calling #{method_name.inspect} (#{@name.inspect}) [#{Dir.pwd}]"
-          #self.class.vagrant.cli('basebox', method_name, @name)
           execute_child_process('vagrant', 'basebox', method_name, @name)
         rescue StandardError => e
           raise e, "#{method_name}: #{e.message}", e.backtrace

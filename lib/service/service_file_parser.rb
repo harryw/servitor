@@ -4,7 +4,12 @@ module Servitor
 
     # Parses the given service file, returning a service config
     def self.parse(file)
-      ServiceConfig.new(file).tap { |sc| sc.instance_eval(File.read(file)) }
+      file_content = File.read(file)
+      ServiceConfig.new(file).tap do |sc|
+        sc.instance_exec do
+          eval(file_content)
+        end
+      end
     end
 
   end
