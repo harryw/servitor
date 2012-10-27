@@ -1,8 +1,8 @@
 module Servitor
 
-  class AppDescription
+  class DeploymentStages
 
-    %w(build release).each do |attr|
+    %w(build release run).each do |attr|
       define_method(attr) do |*args|
         value = args.length > 0 ? args.first : nil
         attr_sym = "@#{attr}".to_sym
@@ -10,9 +10,6 @@ module Servitor
         instance_variable_get(attr_sym)
       end
     end
-
-    alias :configure :build
-    alias :execute :release
 
   end
 

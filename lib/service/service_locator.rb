@@ -3,7 +3,7 @@ module Servitor
   class ServiceLocator
 
     FILENAMES = %w(Servicefile .servicefile)
-    DEFAULT_SERVICES_DIR = '~/git'
+    DEFAULT_SERVICES_DIR = ENV['SERVITOR_SERVICES_DIR'] || File.join(ENV['HOME'],'git')
 
     class << self
 
@@ -21,7 +21,7 @@ module Servitor
           dir = Dir.pwd
         end
         file = service_file_in_dir(dir)
-        ServiceFileParser.parse(file)
+        ServiceFileParser.parse(file, dir)
       end
 
       private

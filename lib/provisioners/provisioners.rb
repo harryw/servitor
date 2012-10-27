@@ -1,4 +1,3 @@
-servitor_require 'child_process_helper'
 servitor_require 'vagrant_box'
 servitor_require 'veewee_box'
 servitor_require 'vagrant_box_provisioner'

@@ -1,5 +1,4 @@
 require 'vagrant'
-servitor_require 'child_process_helper'
 
 module Servitor
 
@@ -42,9 +41,9 @@ module Servitor
 
     attr_reader :name, :path
 
-    def initialize(name)
+    def initialize(name, path=nil)
       @name = name
-      @path = File.join(Servitor.boxes_root, @name)
+      @path = path || File.join(Servitor.boxes_root, @name)
     end
 
     def init(base_box)
@@ -56,6 +55,12 @@ module Servitor
     def up
       box_dir do
         execute_child_process('vagrant', 'up', '--no-provision')
+      end
+    end
+
+    def halt
+      box_dir do
+        execute_child_process('vagrant', 'halt')
       end
     end
 
@@ -75,13 +80,19 @@ module Servitor
 
     def ssh(command, options={})
       box_dir do
-        args = ['vagrant', 'ssh', '-c', command, options]
+        args = ['vagrant', 'ssh', options[:vm_name], '-c', command, options].compact
         if options[:capture]
           execute_child_process_and_capture_output(*args)
         else
           execute_child_process(*args)
         end
       end
+    end
+
+    def ruby(script, options={})
+      escaped = script.gsub('"', '\"')
+      lines = escaped.split("\n")
+      ssh("ruby #{lines.map {|l| "-e \"#{l}\""} }", options)
     end
 
     def provision

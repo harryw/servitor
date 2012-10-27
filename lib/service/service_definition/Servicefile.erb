@@ -1,0 +1,54 @@
+
+# The unique name of this service in the SOA
+name 'my-service'
+
+# This service may depend on any number of other services, identified by their
+# unique names in the SOA.  Some services may depend on multiple instances of
+# another service with different properties; this needs to be figured out.
+depends_on %w( service2 service3 )
+
+# Specify the infrastructure requirements for this service.  Anything that is
+# not specified will revert to some defaults.  There may be additional
+# infrastructure used in any given infrastructure provider implementation, but
+# this is the minimum set required by the app.
+infrastructure_requirements do
+  os_name 'ubuntu'
+  os_version '10.04'
+  os_arch '64'
+  ruby_version '1.9.2-p290'
+end
+
+# This should define the commands to use for the 12-factor build and release
+# steps (also aliased as configure and execute).  Any other services that this
+# service depends on will be started up first.  If there are mutual dependencies
+# then they should both be configured and then both started.  If the deployment
+# tools need to interact with the app in any other app-specific way, that should
+# also be defined here.  Note that these are explicitly deployment-related
+# operations; should we define any control tier operations here too?
+deployment_stages do
+  build 'echo "running build task"'
+  release  'echo "running release task"'
+  run 'rackup -p <%= '<%= @port %>' %>'
+end
+
+# Any configurable variables for this app are defined here.  If the app is to
+# receive configuration data then it *must* be included in this block.  This
+# includes details of any backing resources (databases, queues, etc.) that need
+# to be attached. If any of these are missing we can catch that problem without
+# even starting the app.  We can also automate the configuration details that
+# tell the app how to communicate with other services it depends on.
+configuration do
+  var 'config_var1'
+  var 'config_var2'
+  var 'config_var3', :default => 'some default'
+  var 'service2_url', :domain_for => 'service2', :format => 'https://<%= '<%= @value %>' %>'
+
+  # If the service depends on attached resources, each resource can be configured
+  # this way
+  resource 'database', :type => 'mysql' do
+    var 'database_host', :from => 'hostname'
+    var 'database_name', :from => 'database_name'
+    var 'database_username', :from => 'username'
+    var 'database_password', :from => 'password'
+  end
+end

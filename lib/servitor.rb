@@ -7,7 +7,11 @@ end
 
 extend(ServitorRequire)
 
+servitor_require 'helpers/helpers'
 servitor_require 'cli/cli'
+servitor_require 'configuration/configuration'
+servitor_require 'control/control'
+servitor_require 'deployment/deployment'
 servitor_require 'infrastructure/infrastructure'
 servitor_require 'provisioners/provisioners'
 servitor_require 'service/service'
@@ -22,12 +26,16 @@ module Servitor
     @root = path
   end
 
+  def self.data_root
+    File.join(Servitor.root, '.servitor')
+  end
+
   def self.boxes_root
-    File.join(Servitor.root, '.servitor', 'boxes')
+    File.join(Servitor.data_root, 'boxes')
   end
 
   def self.vagrantfile
-    File.join(Servitor.root, '.servitor', 'Vagrantfile')
+    File.join(Servitor.data_root, 'Vagrantfile')
   end
 
   class ServitorRootException < StandardError; end
