@@ -4,7 +4,7 @@ module Servitor
     def execute_child_process(*args)
       options = args.pop if args.last.is_a? Hash
       options ||= {}
-      puts "Executing: #{args.inspect}"
+      #puts "Executing: #{args.inspect}"
       process = ChildProcess.build(*args)
       if block_given?
         yield process
