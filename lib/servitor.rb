@@ -38,5 +38,9 @@ module Servitor
     File.join(Servitor.data_root, 'Vagrantfile')
   end
 
+  def self.ssh_dir
+    File.join(Servitor.data_root, 'ssh')
+  end
+
   class ServitorRootException < StandardError; end
 end

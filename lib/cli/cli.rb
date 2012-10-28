@@ -11,7 +11,8 @@ module Servitor
 
     def autoconfigure
 
-      vagrantfile = Vagrantfile.new(services).generate
+      SshKey.new(Servitor.ssh_dir).deploy
+      vagrantfile = Vagrantfile.new(services, Servitor.ssh_dir).generate
 
       File.open(Servitor.vagrantfile, 'w') do |f|
         f.write(vagrantfile)

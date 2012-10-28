@@ -14,12 +14,13 @@ module Servitor
 
     def deploy
       box.ruby(<<-RUBY, :vm_name => @service_name)
+        require 'fileutils'
         envdir = File.join(#{path.inspect}, #{dirname.inspect})
         variables = #{variables.inspect}
         FileUtils.mkdir_p(envdir)
         Dir.chdir(envdir) do
           variables.each do |name, value|
-            File.open(name.toupper, w) {|f| f.write(value) }
+            File.open(name.upcase, 'w') {|f| f.write(value) }
           end
         end
       RUBY

@@ -21,7 +21,7 @@ module Servitor
     private
 
     def yaml
-      @yaml ||= YAML.load_file(file_path)
+      @yaml ||= YAML.load_file(@file_path)
     end
   end
 

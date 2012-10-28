@@ -80,7 +80,7 @@ module Servitor
 
     def ssh(command, options={})
       box_dir do
-        args = ['vagrant', 'ssh', options[:vm_name], '-c', command, options].compact
+        args = ['vagrant', 'ssh', options[:vm_name], '-c', command].compact
         if options[:capture]
           execute_child_process_and_capture_output(*args)
         else
@@ -92,7 +92,9 @@ module Servitor
     def ruby(script, options={})
       escaped = script.gsub('"', '\"')
       lines = escaped.split("\n")
-      ssh("ruby #{lines.map {|l| "-e \"#{l}\""} }", options)
+      cmd = "ruby #{lines.map {|l| "-e \"#{l}\""}.join(' ') }"
+      #puts "cmd = "+ cmd
+      ssh(cmd, options)
     end
 
     def provision

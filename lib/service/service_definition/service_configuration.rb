@@ -5,9 +5,9 @@ module Servitor
     include HasVariables
 
     def resource(name, options=nil, &block)
-      resource = Resource.new(name, options)
-      resource.instance_exec(&block) if block_given?
-      resources << resource
+      resource_configuration = ResourceConfiguration.new(name, options)
+      resource_configuration.instance_exec(&block) if block_given?
+      resources << resource_configuration
     end
 
     def resources

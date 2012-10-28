@@ -39,11 +39,11 @@ module Servitor
       required_variables.map do |required_variable|
         value = nil
         if (service_name = required_variable.options[:domain_for])
-          service = services.find{|s| s.name == service_name}
+          service = @services.find{|s| s.name == service_name}
           raise DependentServiceNotFound, service_name unless service
           value = service.ip_address
         else
-          value = provided_variables[required_variable]
+          value = provided_variables[required_variable.name]
         end
 
         if value.nil?
@@ -64,12 +64,12 @@ module Servitor
 
     def resolve_resource_variables(resource_configuration)
       resolved_variables = {}
-      resource = resources.find {|resource| resource.name == resource_configuration.name}
+      resource = resources[resource_configuration.name]
       raise ResourceNotFound, resource_configuration.name unless resource
       resource_configuration.variables.each do |required_variable|
-        source_attribute = required_variable[:from]
-        raise ResourceAttributeNotFound, source_attribute unless resource.attributes.key?(source_attribute)
-        resolved_variables[required_variable.name] = resource.attributes[source_attribute]
+        source_attribute = required_variable.options[:from]
+        raise ResourceAttributeNotFound, source_attribute unless resource.key?(source_attribute)
+        resolved_variables[required_variable.name] = resource[source_attribute]
       end
       resolved_variables
     end

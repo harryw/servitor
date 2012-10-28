@@ -4,7 +4,8 @@ Vagrant::Config.run do |config|
       service_config.vm.box = <%= service.box.to_s.inspect %>
       service_config.vm.network :hostonly, <%= service.ip_address.to_s.inspect %>
       service_config.vm.share_folder 'v-root', <%= service.vm_root.inspect %>, <%= service.root.inspect %>
-      #service_config.vm.share_folder 'ssh-keys', '/home/vagrant/.ssh', <%= ENV['HOME'].inspect %>
+      service_config.vm.share_folder 'ssh-keys', '/mnt/ssh', <%= @ssh_dir.inspect %>
+      #service_config.ssh.private_key_path = <%= File.join(@ssh_dir, 'id_rsa').inspect %>
       <% service.forwarded_ports.each do |from, to| %>
         service_config.vm.forward_port <%= from.to_i.inspect %>, <%= to.to_i.inspect %>
       <% end %>
