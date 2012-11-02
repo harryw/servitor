@@ -57,7 +57,7 @@ end
 deployment_stages do
   build 'echo "running build task"'
   release  'echo "running release task"'
-  run 'rackup -p <%= '<%= @port %>' %>'
+  run 'rackup -p <%= @port %>'
 end
 
 # Any configurable variables for this app are defined here.  If the app is to
@@ -70,7 +70,7 @@ configuration do
   var 'config_var1'
   var 'config_var2'
   var 'config_var3', :default => 'some default'
-  var 'service2_url', :domain_for => 'service2', :format => 'https://<%= '<%= @value %>' %>'
+  var 'service2_url', :domain_for => 'service2', :format => 'https://<%= @value %>'
 
   # If the service depends on attached resources, each resource can be configured
   # this way
