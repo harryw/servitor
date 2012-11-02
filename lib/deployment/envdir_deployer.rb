@@ -14,9 +14,10 @@ module Servitor
 
     def deploy
       # envdir is part of daemontools
-      box.ssh('which envdir || sudo apt-get install daemontools', :vm_name => @service_name, :ignore_exit_code => true)
+      box.ssh('which envdir || sudo apt-get install daemontools',
+          :vm_name => @service_name, :ignore_exit_code => true, :capture => true)
 
-      box.ruby(<<-RUBY, :vm_name => @service_name)
+      box.ruby(<<-RUBY, :vm_name => @service_name, :sudo => true)
         require 'fileutils'
         envdir = File.join(#{path.inspect}, #{dirname.inspect})
         variables = #{variables.inspect}

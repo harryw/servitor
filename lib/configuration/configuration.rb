@@ -1,1 +1,2 @@
+servitor_require 'configuration_resolver'
 servitor_require 'yaml_configuration_provider'

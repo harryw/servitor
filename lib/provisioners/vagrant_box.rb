@@ -80,7 +80,8 @@ module Servitor
 
     def ssh(command, options={})
       box_dir do
-        args = ['vagrant', 'ssh', options[:vm_name], '-c', command].compact
+        sudo = options[:sudo] ? 'sudo ' : ''
+        args = ['vagrant', 'ssh', options[:vm_name], '-c', "#{sudo}#{command}"].compact
         if options[:capture]
           execute_child_process_and_capture_output(*args)
         else

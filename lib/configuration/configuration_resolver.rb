@@ -64,7 +64,7 @@ module Servitor
 
     def resolve_resource_variables(resource_configuration)
       resolved_variables = {}
-      resource = resources[resource_configuration.name]
+      resource = find_resource(resource_configuration)
       raise ResourceNotFound, resource_configuration.name unless resource
       resource_configuration.variables.each do |required_variable|
         source_attribute = required_variable.options[:from]
@@ -76,6 +76,21 @@ module Servitor
 
     def resources
       @resources ||= @configuration_provider.resources_for(@service_definition.name)
+    end
+
+    def find_resource(resource_configuration)
+      if resource_configuration.options[:type] == 'mysql'
+        mysql_service = @services.find{|s| s.name == 'mysql'}
+        resource = {
+          'hostname' => mysql_service.ip_address,
+          'database_name' => @service_definition.name,
+          'username' => MysqlResource::USERNAME,
+          'password' => MysqlResource::PASSWORD,
+        }
+      else
+        resource = resources[resource_configuration.name]
+      end
+      resource
     end
   end
 

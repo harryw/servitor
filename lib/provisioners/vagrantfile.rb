@@ -1,5 +1,21 @@
 require 'erubis'
 
+class String
+  unless method_defined?(:blank?)
+    def blank?
+      self =~ /^\s*$/
+    end
+  end
+end
+
+class NilClass
+  unless method_defined?(:blank?)
+    def blank?
+      true
+    end
+  end
+end
+
 module Servitor
 
   class Vagrantfile

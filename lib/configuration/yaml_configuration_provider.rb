@@ -7,14 +7,14 @@ module Servitor
     end
 
     def variables_for(service_name)
-      services = yaml['services']
+      services = yaml['services'] || {}
       service_vars = services[service_name] || {}
       common_vars = services['common'] || {}
       common_vars.merge(service_vars)
     end
 
     def resources_for(service_name)
-      resources = yaml['resources']
+      resources = yaml['resources'] || {}
       resources[service_name] || {}
     end
 

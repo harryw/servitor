@@ -14,6 +14,7 @@ servitor_require 'control/control'
 servitor_require 'deployment/deployment'
 servitor_require 'infrastructure/infrastructure'
 servitor_require 'provisioners/provisioners'
+servitor_require 'resource/resource'
 servitor_require 'service/service'
 
 module Servitor

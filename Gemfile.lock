@@ -45,6 +45,7 @@ GEM
     log4r (1.1.10)
     mime-types (1.19)
     multi_json (1.3.6)
+    mysql2 (0.2.18)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
     net-ssh (2.2.2)
@@ -99,5 +100,6 @@ PLATFORMS
 DEPENDENCIES
   childprocess
   erubis
+  mysql2
   rspec
   veewee (= 0.3.0.beta2)

@@ -1,5 +1,4 @@
 servitor_require 'variable'
-servitor_require 'configuration_resolver'
 servitor_require 'deployment_stages'
 servitor_require 'resource_configuration'
 servitor_require 'service_configuration'
@@ -22,7 +21,7 @@ module Servitor
     # these are derived at load time
     attr_reader :location, :service_root
 
-    def initialize(location, service_root)
+    def initialize(location=nil, service_root=nil)
       @location = location
       @service_root = service_root
       @depends_on = []
