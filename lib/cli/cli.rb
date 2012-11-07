@@ -6,7 +6,7 @@ module Servitor
   class CLI
 
     def initialize
-      Servitor.root = Dir.pwd
+      #Servitor.root = Dir.pwd
     end
 
     def autoconfigure
@@ -30,7 +30,7 @@ module Servitor
 
     def deploy
       configuration_provider = YamlConfigurationProvider.new(File.join(Servitor.data_root, 'variables.yml'))
-
+      env_dir = '.envdir'
       service_nodes.each do |service_node|
         configuration_resolver = ConfigurationResolver.new(
           service_node.service_definition,
@@ -38,9 +38,15 @@ module Servitor
           services)
         variables = configuration_resolver.variables
 
-        service = services.find {|s| s.name == service_node.service_definition.name}
-        box = VagrantBox.new(service.name)
-        EnvdirDeployer.new(main_box, service.name, service.vm_root, '.envdir', variables).deploy
+        #service = services.find {|s| s.name == service_node.service_definition.name}
+        service_node.service.config_variables = variables
+        EnvdirDeployer.new(main_box, service_node.service.name, service_node.service.vm_root, env_dir, variables).deploy
+      end
+
+      service_nodes.each do |service_node|
+        command_prefix = EnvdirDeployer.command_prefix(service_node.service.vm_root, env_dir)
+        DependencyScriptExecutor.new(main_box, service_node.service.vm_root, service_node, services).execute
+        DeploymentStageExecutor.new(main_box, service_node.service.vm_root, service_node, command_prefix).execute
       end
     end
 

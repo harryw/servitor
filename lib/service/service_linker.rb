@@ -23,11 +23,11 @@ module Servitor
         begin
           next_ip += 1
         end while ip_address(next_ip, options) == host_ip(options)
-        service.forwarded_ports = { 80 => next_port }.merge(ports_for(service_node))
+        service.forwarded_ports = { 8080 => next_port }.merge(ports_for(service_node))
         next_port += 1
         service.root = service_node.service_definition.service_root
         service.vm_root = options[:vm_root] || '/mnt/app/current'
-        service
+        service_node.service = service
       end
     end
 

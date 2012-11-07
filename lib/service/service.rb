@@ -8,5 +8,11 @@ servitor_require 'service_linker'
 module Servitor
   class Service
     attr_accessor :name, :box, :ip_address, :root, :vm_root, :forwarded_ports, :service_node
+
+    attr_writer :config_variables
+
+    def config_variables
+      @config_variables ||= {}
+    end
   end
 end

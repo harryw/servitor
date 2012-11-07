@@ -1,6 +1,8 @@
 servitor_require 'variable'
 servitor_require 'deployment_stages'
 servitor_require 'resource_configuration'
+servitor_require 'dependency_script'
+servitor_require 'provided_script'
 servitor_require 'service_configuration'
 servitor_require 'service_definition'
 
@@ -21,6 +23,8 @@ module Servitor
     # these are derived at load time
     attr_reader :location, :service_root
 
+    attr_reader :provided_scripts
+
     def initialize(location=nil, service_root=nil)
       @location = location
       @service_root = service_root
@@ -28,6 +32,7 @@ module Servitor
       @deployment_stages = DeploymentStages.new
       @infrastructure_requirements = InfrastructureRequirements.new
       @configuration = ServiceConfiguration.new
+      @provided_scripts = []
     end
 
     def deployment_stages(*args, &block)
@@ -44,6 +49,13 @@ module Servitor
       @configuration.instance_exec(&block) if block_given?
       @configuration
     end
+
+    def provides_script(name, options=nil, &block)
+      script = ProvidedScript.new(name, options)
+      script.instance_exec(&block) if block_given?
+      @provided_scripts << script
+    end
+
   end
 
 end

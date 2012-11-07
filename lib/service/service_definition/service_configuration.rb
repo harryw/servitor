@@ -14,6 +14,15 @@ module Servitor
       @resources ||= []
     end
 
+    def dependency_script(name, options=nil, &block)
+      script = DependencyScript.new(name, options)
+      script.instance_exec(&block) if block_given?
+      dependency_scripts << script
+    end
+
+    def dependency_scripts
+      @dependency_scripts ||= []
+    end
   end
 
 end

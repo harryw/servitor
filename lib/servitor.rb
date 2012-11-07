@@ -19,7 +19,7 @@ servitor_require 'service/service'
 
 module Servitor
   def self.root
-    @root
+    @root ||= ENV['HOME']
   end
 
   def self.root=(path)

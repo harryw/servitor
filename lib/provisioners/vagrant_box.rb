@@ -79,9 +79,12 @@ module Servitor
     end
 
     def ssh(command, options={})
+      #puts "executing: #{command}"
       box_dir do
-        sudo = options[:sudo] ? 'sudo ' : ''
-        args = ['vagrant', 'ssh', options[:vm_name], '-c', "#{sudo}#{command}"].compact
+        sudo = options[:sudo] ? 'sudo' : ''
+        shim_prefix = options[:shim_prefix] || ''
+        args = ['vagrant', 'ssh', options[:vm_name], '-c',
+            "#{sudo} #{shim_prefix} #{command}"].compact
         if options[:capture]
           execute_child_process_and_capture_output(*args)
         else
@@ -91,11 +94,16 @@ module Servitor
     end
 
     def ruby(script, options={})
-      escaped = script.gsub('"', '\"')
-      lines = escaped.split("\n")
-      cmd = "ruby #{lines.map {|l| "-e \"#{l}\""}.join(' ') }"
-      #puts "cmd = "+ cmd
-      ssh(cmd, options)
+      if options.delete(:sudo)
+        options[:shim_prefix] = "rvmsudo #{options[:shim_prefix] || ''}"
+      end
+      escaped = script.
+          gsub('"', {'"' => '\"'}).
+          gsub('`', {'`' => '\`'})
+      vm_options = {}
+      vm_options[:vm_name] = options[:vm_name] if options[:vm_name]
+      ssh("echo \"#{escaped}\" > /tmp/servitor-ruby", vm_options)
+      ssh("ruby /tmp/servitor-ruby", options)
     end
 
     def provision

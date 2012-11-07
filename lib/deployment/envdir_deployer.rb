@@ -25,10 +25,14 @@ module Servitor
         FileUtils.mkdir_p(envdir)
         Dir.chdir(envdir) do
           variables.each do |name, value|
-            File.open(name.upcase, 'w') {|f| f.write(value.gsub("\n", 0.chr)) } if value
+            File.open(name.upcase, 'w') {|f| f.write(value.gsub("\\n", 0.chr)) } if value
           end
         end
       RUBY
+    end
+
+    def self.command_prefix(path, dirname)
+      "envdir #{File.join(path, dirname)}"
     end
   end
 end

@@ -2,7 +2,7 @@ module Servitor
   class MysqlResource
 
     USERNAME = 'root'
-    PASSWORD = ''
+    PASSWORD = 'password'
 
     def self.service_definition
       @service_definition ||= begin
@@ -15,15 +15,24 @@ module Servitor
           ruby_version '1.9.2-p290'
         end
         service_definition.deployment_stages do
-          build <<-BASH
-            which mysqld || sudo apt-get install mysql-server -y
+          build <<-BASH, :sudo => true
+            echo checking for mysqld...
+            if ! [ `which mysqld` ]; then
+              echo installing mysql-server...
+              echo mysql-server-5.1 mysql-server/root_password password #{PASSWORD} | debconf-set-selections
+              echo mysql-server-5.1 mysql-server/root_password_again password #{PASSWORD}| debconf-set-selections
+              apt-get install mysql-server -y
+              echo ...complete
+            fi
           BASH
-          release <<-BASH
-            SERVICE_IP = ifconfig eth1 | sed '/inet addr/!d;s/.*addr:\(.*\) Bcast.*$/\1/'
-            sudo sed -i '/^bind-address/s/127.0.0.1/$SERVICE_IP/g' /etc/mysql/my.cnf
-          BASH
-          run <<-BASH
-            sudo service mysql restart
+          release <<-RUBY, :language => :ruby, :sudo => true
+            puts "configuring mysqld"
+            puts "service ip is: \#{ENV['SERVICE_IP']}"
+            puts `sed -i "/^bind-address/s/127.0.0.1/\#{ENV['SERVICE_IP']}/g" /etc/mysql/my.cnf`
+          RUBY
+          run <<-BASH, :sudo => true
+            echo starting mysqld
+            service mysql restart
           BASH
         end
         service_definition
