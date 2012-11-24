@@ -27,15 +27,24 @@ module Servitor
     end
 
     def run
-      fork { execute_stage(deployment_stages.run, :detach_after => true) }
-      sleep(10) # give it some time to start up
+      execute_stage(deployment_stages.run)
     end
 
     def execute_stage(stage, options={})
       if stage
-        script = evaluate_template(stage.script)
+        if stage.script == :procfile
+          options[:sudo] = true
+          script = <<-BASH
+            cd #{@vm_root}
+            bundle exec foreman export upstart /etc/init -a servitorapp -u vagrant
+            stop servitorapp
+            start servitorapp
+          BASH
+        else
+          options.merge!(:sudo => stage.options[:sudo]) if stage.options[:sudo]
+          script = evaluate_template(stage.script)
+        end
         options.merge!(:vm_name => @service_node.service_definition.name)
-        options.merge!(:sudo => stage.options[:sudo]) if stage.options[:sudo]
         if stage.options[:language] == :ruby
           wrapped_script = <<-RUBY
             ENV['GIT_SSH'] = #{git_ssh.inspect}

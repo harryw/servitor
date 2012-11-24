@@ -47,8 +47,7 @@ module Servitor
       end
 
       @box.ssh(<<-BASH, :vm_name => other_service.name, :capture => true)
-        cd #{@vm_root}
-        #{args.map {|k,v| "#{k.upcase}='#{v}'"}.join(' ')} #{provided_script.command}
+        cd #{@vm_root} && #{args.map {|k,v| "#{k.upcase}='#{v}'"}.join(' ')} #{provided_script.command}
       BASH
     end
 

@@ -80,23 +80,25 @@ module Servitor
 
     def ssh(command, options={})
       #puts "executing: #{command}"
+      output = nil
       box_dir do
-        sudo = options[:sudo] ? 'sudo' : ''
+        sudo = options[:sudo] ? 'rvmsudo' : ''
         shim_prefix = options[:shim_prefix] || ''
         args = ['vagrant', 'ssh', options[:vm_name], '-c',
             "#{sudo} #{shim_prefix} #{command}"].compact
-        if options[:capture]
+        output = if options[:capture]
           execute_child_process_and_capture_output(*args)
         else
           execute_child_process(*args)
         end
       end
+      output
     end
 
     def ruby(script, options={})
-      if options.delete(:sudo)
-        options[:shim_prefix] = "rvmsudo #{options[:shim_prefix] || ''}"
-      end
+      #if options.delete(:sudo)
+      #  options[:shim_prefix] = "rvmsudo #{options[:shim_prefix] || ''}"
+      #end
       escaped = script.
           gsub('"', {'"' => '\"'}).
           gsub('`', {'`' => '\`'})

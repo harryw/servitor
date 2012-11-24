@@ -21,6 +21,7 @@ module Servitor
               echo installing mysql-server...
               echo mysql-server-5.1 mysql-server/root_password password #{PASSWORD} | debconf-set-selections
               echo mysql-server-5.1 mysql-server/root_password_again password #{PASSWORD}| debconf-set-selections
+              apt-get update
               apt-get install mysql-server -y
               echo ...complete
             fi
