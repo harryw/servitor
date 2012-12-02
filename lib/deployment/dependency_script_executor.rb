@@ -1,10 +1,11 @@
 module Servitor
   class DependencyScriptExecutor
-    def initialize(box, vm_root, service_node, services)
+    def initialize(box, vm_root, service_node, command_prefix, services)
       @box = box
-      @service_node = service_node
-      @services = services
       @vm_root = vm_root
+      @service_node = service_node
+      @command_prefix = command_prefix
+      @services = services
     end
 
     def execute
@@ -46,13 +47,17 @@ module Servitor
         args[required_arg_name] == provided_arg_value
       end
 
-      @box.ssh(<<-BASH, :vm_name => other_service.name, :capture => true)
+      script = <<-BASH
         cd #{@vm_root} && #{args.map {|k,v| "#{k.upcase}='#{v}'"}.join(' ')} #{provided_script.command}
       BASH
+      script = script.gsub('\\', {'\\' => '\\\\'}).gsub('"', {'"' => '\\"'})
+      @box.ssh("/bin/bash -c \"#{script}\"", :vm_name => other_service.name, :capture => true, :shim_prefix => @command_prefix)
     end
 
     def update_config_from(output, dependency_script)
+      puts "output: #{output}"
       yaml = YAML.parse(output)
+      puts "updating from: #{yaml.inspect}"
       dependency_script.variables.each do |dependent_variable|
         expected_var = dependent_variable.options[:from] || dependent_variable.name
         received_var = yaml[expected_var]

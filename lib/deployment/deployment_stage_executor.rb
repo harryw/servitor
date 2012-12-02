@@ -4,9 +4,9 @@ module Servitor
   class DeploymentStageExecutor
     def initialize(box, vm_root, service_node, command_prefix)
       @box = box
+      @vm_root = vm_root
       @service_node = service_node
       @command_prefix = command_prefix
-      @vm_root = vm_root
     end
 
     def execute
@@ -27,7 +27,8 @@ module Servitor
     end
 
     def run
-      execute_stage(deployment_stages.run)
+      Executioner.new(deployment_stages.run, @box, @service_node, @command_prefix).execute
+      #execute_stage(deployment_stages.run)
     end
 
     def execute_stage(stage, options={})

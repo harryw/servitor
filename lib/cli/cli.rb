@@ -45,7 +45,7 @@ module Servitor
 
       service_nodes.each do |service_node|
         command_prefix = EnvdirDeployer.command_prefix(service_node.service.vm_root, env_dir)
-        DependencyScriptExecutor.new(main_box, service_node.service.vm_root, service_node, services).execute
+        DependencyScriptExecutor.new(main_box, service_node.service.vm_root, service_node, command_prefix, services).execute
         DeploymentStageExecutor.new(main_box, service_node.service.vm_root, service_node, command_prefix).execute
       end
     end

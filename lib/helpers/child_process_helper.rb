@@ -2,6 +2,7 @@ module Servitor
   module ChildProcessHelper
 
     def execute_child_process(*args)
+      #start = Time.now
       options = args.pop if args.last.is_a? Hash
       options ||= {}
       #puts "Executing: #{args.inspect}"
@@ -13,6 +14,7 @@ module Servitor
       end
       process.start
       exit_code = process.wait
+      #puts "duration: #{Time.now - start}"
       unless exit_code == 0 || options[:ignore_exit_code]
         raise ServitorChildProcessError, "#{args.inspect}: exited with code #{exit_code}"
       end

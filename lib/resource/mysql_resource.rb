@@ -28,10 +28,9 @@ module Servitor
           BASH
           release <<-RUBY, :language => :ruby, :sudo => true
             puts "configuring mysqld"
-            puts "service ip is: \#{ENV['SERVICE_IP']}"
             puts `sed -i "/^bind-address/s/127.0.0.1/\#{ENV['SERVICE_IP']}/g" /etc/mysql/my.cnf`
           RUBY
-          run <<-BASH, :sudo => true
+          run <<-BASH, :sudo => true, :daemonized => true
             echo starting mysqld
             service mysql restart
           BASH

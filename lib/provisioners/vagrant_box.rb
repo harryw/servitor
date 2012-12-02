@@ -96,16 +96,17 @@ module Servitor
     end
 
     def ruby(script, options={})
-      #if options.delete(:sudo)
-      #  options[:shim_prefix] = "rvmsudo #{options[:shim_prefix] || ''}"
-      #end
-      escaped = script.
-          gsub('"', {'"' => '\"'}).
-          gsub('`', {'`' => '\`'})
       vm_options = {}
       vm_options[:vm_name] = options[:vm_name] if options[:vm_name]
-      ssh("echo \"#{escaped}\" > /tmp/servitor-ruby", vm_options)
+      put(script, '/tmp/servitor-ruby', vm_options)
       ssh("ruby /tmp/servitor-ruby", options)
+    end
+
+    def put(content, file_name, options={})
+      escaped = content.
+          gsub('"', {'"' => '\"'}).
+          gsub('`', {'`' => '\`'})
+      ssh("echo \"#{escaped}\" > #{file_name.inspect}", options)
     end
 
     def provision
