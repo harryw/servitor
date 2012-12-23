@@ -38,7 +38,7 @@ module Servitor
             app.process(<%= process_name.inspect %>) do |process|
               process.start_command = <%= command.inspect %>
               process.pid_file = "/tmp/servitorapp-<%= process_name %>.pid"
-              process.daemonize = <%= @daemonize.inspect %>
+              process.daemonize = true
             end
           <% end %>
         end
