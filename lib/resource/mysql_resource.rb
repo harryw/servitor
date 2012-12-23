@@ -29,6 +29,7 @@ module Servitor
           release <<-RUBY, :language => :ruby, :sudo => true
             puts "configuring mysqld"
             puts `sed -i "/^bind-address/s/127.0.0.1/\#{ENV['SERVICE_IP']}/g" /etc/mysql/my.cnf`
+            puts `mysql -u '#{USERNAME}' -p#{PASSWORD} -e "grant all on *.* to '#{USERNAME}' identified by '#{PASSWORD}'"`
           RUBY
           run <<-BASH, :sudo => true, :daemonized => true
             echo starting mysqld
