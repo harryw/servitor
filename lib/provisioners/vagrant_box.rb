@@ -79,17 +79,22 @@ module Servitor
     end
 
     def ssh(command, options={})
-      #puts "executing: #{command}"
+      puts "executing: #{command}"
       output = nil
       box_dir do
         sudo = options[:sudo] ? 'rvmsudo' : ''
         shim_prefix = options[:shim_prefix] || ''
-        args = ['vagrant', 'ssh', options[:vm_name], '-c',
-            "#{sudo} #{shim_prefix} #{command}"].compact
-        output = if options[:capture]
-          execute_child_process_and_capture_output(*args)
-        else
-          execute_child_process(*args)
+        ssh_config_for(options[:vm_name]) do |ssh_config|
+          #args = ['vagrant', 'ssh', options[:vm_name], '-c',
+          #    "#{sudo} #{shim_prefix} #{command}"].compact
+          args = ['ssh', '-F', ssh_config, options[:vm_name] || 'default',
+              'bash', '--login', # needs to be a login shell to get RVM initialized
+              "#{sudo} #{shim_prefix} #{command}"]
+          output = if options[:capture]
+            execute_child_process_and_capture_output(*args)
+          else
+            execute_child_process(*args)
+          end
         end
       end
       output
@@ -120,6 +125,18 @@ module Servitor
     def box_dir(&block)
       FileUtils.mkdir_p(self.path)
       FileUtils.chdir(self.path, {}, &block)
+    end
+
+    def ssh_config_for(box_name)
+      @@ssh_configs ||= {}
+      ssh_config = @@ssh_configs[box_name] ||= begin
+        execute_child_process_and_capture_output(*(['vagrant', 'ssh-config', box_name].compact))
+      end
+      Tempfile.open("ssh-config-#{box_name}") do |f|
+        f.write(ssh_config)
+        f.flush
+        yield f.path
+      end
     end
 
   end
