@@ -1,5 +1,8 @@
 module Servitor
   class DependencyScriptExecutor
+
+    include QuotedArgs
+
     def initialize(box, vm_root, service_node, command_prefix, services)
       @box = box
       @vm_root = vm_root
@@ -50,8 +53,7 @@ module Servitor
       script = <<-BASH
         cd #{@vm_root} && #{args.map {|k,v| "#{k.upcase}='#{v}'"}.join(' ')} #{provided_script.command}
       BASH
-      script = script.gsub('\\', {'\\' => '\\\\'}).gsub('"', {'"' => '\\"'})
-      @box.ssh("/bin/bash -c \"#{script}\"", :vm_name => other_service.name, :capture => true, :shim_prefix => @command_prefix)
+      @box.ssh("/bin/bash -c #{quote(script)}", :vm_name => other_service.name, :capture => true, :shim_prefix => @command_prefix)
     end
 
     def update_config_from(output, dependency_script)

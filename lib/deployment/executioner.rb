@@ -2,6 +2,9 @@ require 'yaml'
 
 module Servitor
   class Executioner
+
+    include QuotedArgs
+
     def initialize(stage, box, service_node, command_prefix)
       @stage = stage
       @box = box
@@ -69,8 +72,7 @@ module Servitor
       options[:sudo] = @stage.options[:sudo]
       options[:vm_name] = @service_node.service.name
       script = "cd #{@service_node.service.vm_root}; #{@stage.script}"
-      script = script.gsub('\\', {'\\' => '\\\\'}).gsub('"', {'"' => '\\"'})
-      @box.ssh("/bin/bash -c \"#{script}\"", options)
+      @box.ssh("/bin/bash -c #{quote(script)}", options)
     end
   end
 end

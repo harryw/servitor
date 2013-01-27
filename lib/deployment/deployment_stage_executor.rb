@@ -2,6 +2,9 @@ require 'erubis'
 
 module Servitor
   class DeploymentStageExecutor
+
+    include QuotedArgs
+
     def initialize(box, vm_root, service_node, command_prefix)
       @box = box
       @vm_root = vm_root
@@ -55,10 +58,8 @@ module Servitor
           @box.ruby(wrapped_script, options)
         else
           options[:shim_prefix] = @command_prefix
-          script = script.gsub('\\', {'\\' => '\\\\'}).gsub('"', {'"' => '\\"'})
-          script = "cd #{@vm_root} && GIT_SSH=#{git_ssh} SERVICE_IP=#{service_ip} /bin/bash -c \"#{script}\""
-          script = script.gsub('\\', {'\\' => '\\\\'}).gsub('"', {'"' => '\\"'})
-          @box.ssh("/bin/bash -c \"#{script}\"", options)
+          script = "cd #{@vm_root} && GIT_SSH=#{git_ssh} SERVICE_IP=#{service_ip} /bin/bash -c #{quote(script)}"
+          @box.ssh("/bin/bash -c #{quote(script)}", options)
         end
       end
     end
@@ -75,8 +76,8 @@ module Servitor
       return if @service_node.service_definition.name == 'mysql'
 
       content = "ssh -i /mnt/ssh/id_rsa -o 'StrictHostKeyChecking no' $@"
+      @box.put(content, File.join(@vm_root, GIT_SSH_FILE), :vm_name => @service_node.service_definition.name)
       @box.ssh(<<-BASH, :vm_name => @service_node.service_definition.name)
-        echo "#{content.gsub('$','\$')}" > #{File.join(@vm_root, GIT_SSH_FILE)}
         chmod ugo+x #{File.join(@vm_root, GIT_SSH_FILE)}
       BASH
     end

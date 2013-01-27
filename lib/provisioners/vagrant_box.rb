@@ -5,6 +5,7 @@ module Servitor
   class VagrantBox
 
     include ChildProcessHelper
+    include QuotedArgs
 
     class << self
       def exists?(name)
@@ -85,11 +86,10 @@ module Servitor
         sudo = options[:sudo] ? 'rvmsudo' : ''
         shim_prefix = options[:shim_prefix] || ''
         ssh_config_for(options[:vm_name]) do |ssh_config|
-          #args = ['vagrant', 'ssh', options[:vm_name], '-c',
-          #    "#{sudo} #{shim_prefix} #{command}"].compact
-          args = ['ssh', '-F', ssh_config, options[:vm_name] || 'default',
-              'bash', '--login', # needs to be a login shell to get RVM initialized
-              "#{sudo} #{shim_prefix} #{command}"]
+          command = "#{sudo} #{shim_prefix} #{command}"
+          args = ['ssh', options[:vm_name] || 'default', '-F', ssh_config,
+            "bash --login -c #{quote(command)}" # needs to be a login shell to get RVM initialized
+          ]
           output = if options[:capture]
             execute_child_process_and_capture_output(*args)
           else
@@ -108,10 +108,17 @@ module Servitor
     end
 
     def put(content, file_name, options={})
-      escaped = content.
-          gsub('"', {'"' => '\"'}).
-          gsub('`', {'`' => '\`'})
-      ssh("echo \"#{escaped}\" > #{file_name.inspect}", options)
+      Tempfile.open("scp") do |f|
+        f.write(content)
+        f.flush
+        ssh_config_for(options[:vm_name]) do |ssh_config|
+          args = ['scp', '-F', ssh_config,
+            f.path,
+            "#{options[:vm_name] || 'default'}:#{file_name}"
+          ]
+          execute_child_process(*args)
+        end
+      end
     end
 
     def provision
